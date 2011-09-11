@@ -41,10 +41,10 @@ i=$lines
 while [ "$i" -gt 0 ]; do
   #echo "$i  ${array[$lines-i]}"
   path="$rd/${array[$lines-i]}"
-  mkdir $wd/library ||
-  mkdir $wd/tags ||
-  ln -s "$path" "$wd/library/${array[$lines-$i]}"
-  ln -s "$wd/library/${array[$lines-$i]}" "$wd/tags/${array[$lines-$i]}"
+  mkdir $wd/library 2> /dev/null
+  #mkdir $wd/tags
+  ln -s "$path" "$wd/library/${array[$lines-$i]}" 2> /dev/null
+  #ln -s "$wd/library/${array[$lines-$i]}" "$wd/tags/${array[$lines-$i]}"
   ((i--))
 done
 
