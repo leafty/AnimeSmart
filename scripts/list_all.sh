@@ -3,51 +3,36 @@
 cd=$PWD
 cd ..
 wd=$PWD
-cd $1
-rd=$PWD
 cd $cd
 
-tmp="/tmp/list_$(date +%s)"
+mkdir $wd/library 2> /dev/null
+mkdir $wd/tmp 2> /dev/null
 
-ls -l $1 > $tmp
-#cat $tmp
-
-exec 3<&0
-exec < $tmp
-
-lines=0
-
-#Header line ignored
-read line
-
-#Retrieve directories
-while read line; do
-  type=${line:0:1}
-
-  name=`echo $line | sed "s/\w+/ /g"`
-  i=7
-  while [ "$i" -gt 0 ]; do
-    name=${name#* }
-    ((i--))
+if [ ! -e "$wd/tmp/list.lock" ]; then
+  touch $wd/tmp/list.lock
+  
+  > $wd/tmp/known_dirs
+  
+  exec 3<&0
+  exec < $wd/config/storage.conf
+  
+  last_modification=`stat -c %Y $wd/library`
+  
+  modif=false
+  
+  while read line; do
+    date=`stat -c %Y $line`
+    if [ "$date" -gt "$last_modification" ]; then
+      modif=true
+      ./list_directory.sh $line >> $wd/tmp/known_dirs
+    fi
   done
+  
+  exec 0<&3 3<&-
 
-  if [ `expr match "$type" 'd'` -eq "1" ]; then
-    array[$lines]=$name
-    ((lines++))
+  if [ "$modif" = true ]; then
+    touch $wd/library
   fi
-done
-
-i=$lines
-while [ "$i" -gt 0 ]; do
-  #echo "$i  ${array[$lines-i]}"
-  path="$rd/${array[$lines-i]}"
-  mkdir $wd/library 2> /dev/null
-  #mkdir $wd/tags
-  ln -s "$path" "$wd/library/${array[$lines-$i]}" 2> /dev/null
-  #ln -s "$wd/library/${array[$lines-$i]}" "$wd/tags/${array[$lines-$i]}"
-  ((i--))
-done
-
-exec 0<&3 3<&-
-
-rm $tmp
+  
+  rm $wd/tmp/list.lock
+fi

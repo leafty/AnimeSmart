@@ -15,5 +15,3 @@ exec < $wd/config/storage.conf
 while read line; do
   touch $line
 done
-
-./list_all.sh

@@ -2,7 +2,7 @@
 
 require 'yaml'
 
-tree = YAML::load( File.open( "../config/conf.yml" ) )
+tree = YAML::load( File.open( "../config/catalogs.yml" ) )
 
 def list_children(tree, tags)
   new_tags = Array.new(tags)
@@ -69,7 +69,8 @@ def get_catalog_path(conf_path, file)
 end
 
 def build_path(catalog_name, path)
-  dir = "../tmp/#{catalog_name}"
+  dir = "../tmp/catalogs/#{catalog_name}"
+  Dir.mkdir "../tmp/catalogs" unless File.exist? "../tmp/catalogs"
   Dir.mkdir dir unless File.exist? dir
   
   path.each do |subdir|
@@ -134,8 +135,6 @@ def truncate_chroot(chroot, path)
   return path
 end
 
-#list_children(tree, [])
-
 def build_links(conf, catalog, library)
   library.each do |file|
     lang = file[:tags][:lang] || "Other"
@@ -144,14 +143,12 @@ def build_links(conf, catalog, library)
       catalog_path = get_catalog_path( location, file )
       link = "#{build_path( conf[:name], catalog_path )}/#{file[:name]}"
       path = truncate_chroot( conf[:chroot], file[:path] )
-      File.symlink( path, link ) unless File.exist? link
+      File.symlink( path, link ) unless File.symlink? link
     end
   end
 end
 
 library = get_library
-
-p tree
 
 Dir.mkdir "../tmp" unless File.exist? "../tmp"
 
