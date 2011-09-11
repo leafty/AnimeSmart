@@ -8,7 +8,7 @@ cd $cd
 mkdir $wd/library 2> /dev/null
 
 exec 3<&0
-exec < storage.txt
+exec < ../config/storage.txt
 
 last_modification=`stat -c %Y $wd/library`
 
