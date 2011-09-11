@@ -3,33 +3,7 @@
 require 'yaml'
 
 tree = YAML::load( File.open( "../config/catalogs.yml" ) )
-
-def list_children(tree, tags)
-  new_tags = Array.new(tags)
-  
-  if tree.class == {}.class
-    tree.each do |key, value|
-      #puts key
-      new_tags.insert(-1, key)
-      build_directory new_tags
-      list_children(value, new_tags)
-    end
-  elsif tree.class == [].class
-    tree.each do |value|
-      #new_dir = "#{dir}/#{value}"
-      list_children(value, tags)
-    end
-  elsif tree.class == "".class
-    #puts tree
-    new_tags.insert(-1, tree)
-    #puts new_dir
-    build_directory new_tags
-  end
-end
-
-def build_directory tags
-  puts tags.inspect
-end
+@aliases = YAML::load( File.open( "../config/aliases.yml" ) )
 
 def build_catalog_r(conf, tags, catalog)
   new_tags = Array.new(tags)
@@ -89,6 +63,10 @@ def tag_regex2
   return /\[(\w*):(\w*)\]/
 end
 
+def resolve_alias tag
+  return @aliases[tag] || tag
+end
+
 def get_tags filename
   h = { :name => filename, :tags => {} }
   
@@ -100,7 +78,8 @@ def get_tags filename
     end
     
     h = get_tags m[2]
-    h[:tags][tag_key.to_sym] = tag_value unless tag_key.nil?
+    key = resolve_alias tag_key
+    h[:tags][key.to_sym] = tag_value unless tag_key.nil?
   end
   
   h[:filename] = filename
