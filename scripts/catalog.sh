@@ -42,6 +42,7 @@ if [ ! -e "$wd/tmp/catalog.lock" ]; then
   if [ "$run" = true ]; then
     ./auto_link.rb
 
+    rm -rf $wd/catalogs/*/*
     cp -R $wd/tmp/catalogs/* $wd/catalogs/.
     rm -rf $wd/tmp/catalogs
   fi

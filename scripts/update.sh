@@ -16,4 +16,4 @@ while read line; do
   touch $line
 done
 
-./list_all.sh
+./catalog.sh
