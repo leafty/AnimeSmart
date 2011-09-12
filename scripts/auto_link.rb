@@ -26,7 +26,8 @@ end
 
 def build_catalog conf
   catalog = []
-  build_catalog_r( conf, [], catalog )
+  catalog.insert( -1, [] ) if conf['files-in-root']
+  build_catalog_r( conf['show'], [], catalog )
   return catalog
 end
 
@@ -51,7 +52,7 @@ def build_path(catalog_name, path)
     dir = "#{dir}/#{subdir}"
     Dir.mkdir dir unless File.exist? dir
   end
-
+  
   return dir
 end
 
@@ -114,13 +115,27 @@ def truncate_chroot(chroot, path)
   return path
 end
 
+def get_link_name(file, tag_order)
+  tags = ""
+  tag_order ||= []
+  tag_order.each do |tag|
+    full_tag = resolve_alias tag
+    tag_value = file[:tags][full_tag.to_sym]
+    tags = "#{tags}[#{tag_value}]" unless tag_value.nil?
+  end
+  
+  return "#{tags}#{file[:name]}"
+end
+
 def build_links(conf, catalog, library)
   library.each do |file|
     lang = file[:tags][:lang] || "Other"
   
     catalog.each do |location|
       catalog_path = get_catalog_path( location, file )
-      link = "#{build_path( conf[:name], catalog_path )}/#{file[:name]}"
+      link_path = build_path( conf[:name], catalog_path )
+      link_name = get_link_name( file, conf[:tag_order] )
+      link = "#{link_path}/#{link_name}"
       path = truncate_chroot( conf[:chroot], file[:path] )
       File.symlink( path, link ) unless File.symlink? link
     end
@@ -132,8 +147,7 @@ library = get_library
 Dir.mkdir "../tmp" unless File.exist? "../tmp"
 
 tree.each_key do |key|
-  catalog = build_catalog tree[key]['show']
-  chroot = tree[key]['chroot']
-  conf = { :name => key, :chroot => chroot }
+  catalog = build_catalog tree[key]
+  conf = { :name => key, :chroot => tree[key]['chroot'], :tag_order => tree[key]['tag-order'] }
   build_links( conf, catalog, library )
 end
