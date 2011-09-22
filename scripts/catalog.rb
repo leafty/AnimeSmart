@@ -25,8 +25,8 @@ class Catalog
     @conf = YAML::load( File.open( '../config/catalogs.yml' ) )
     @aliases = YAML::load( File.open( '../config/aliases.yml' ) )
     
-    @tag_regex = /(\[\w*:\w*\])(.*)/
-    @tag_regex2 = /\[(\w*):(\w*)\]/
+    @tag_regex = /(\[\w*(?: |:)\w*\])(.*)/
+    @tag_regex2 = /\[(\w*)(?: |:)(\w*)\]/
     
     def self.build_catalog_r( conf, tags, catalog )
       new_tags = Array.new( tags )
