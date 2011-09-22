@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby1.9.1
 # encoding: utf-8
 
 require './init.rb'
@@ -6,12 +6,12 @@ require './lock.rb'
 require './library.rb'
 require './catalog.rb'
 
-lock = Lock.lock
+init = Init.check_dirs
 
-if lock
-  init = Init.check_dirs
+if init
+  lock = Lock.lock
   
-  if init
+  if lock
     Library.update
     Catalog.create
   end

@@ -30,7 +30,7 @@ module SymlinkLib
       file.close
       return entry
     else
-      return File.readlink( target, name )
+      return File.readlink( name )
     end
   end
   
