@@ -163,11 +163,15 @@ class Catalog
     end
 
     def self.build_links( conf, catalog, library )
-    catalog.each do |location|
-      catalog_path = get_catalog_path( location, get_tags( "" ) )
-      build_path( conf[:name], catalog_path, true )
-    end
-    
+      library.each do |file|
+        lang = file[:tags][:lang] || "Other"
+      
+        catalog.each do |location|
+          catalog_path = get_catalog_path( location, file )
+          build_path( conf[:name], catalog_path, true )
+        end
+      end
+
       library.each do |file|
         lang = file[:tags][:lang] || "Other"
       

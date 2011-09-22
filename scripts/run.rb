@@ -14,7 +14,6 @@ if init
   if lock
     Library.update
     Catalog.create
+    Lock.unlock
   end
-  
-  Lock.unlock
 end
